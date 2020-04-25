@@ -8,9 +8,10 @@ from playsoundfold.playsound import playsound
 from listelvl import *
 import random
 import asyncio
-# ------------------------------------------------------------------------------
+# ==============================================================================
+
 def loadplayerpos():
-'''Initialize the player position'''
+    '''Initialize the player position'''
     rows, cols = fram.size
     row = 0
     col = 0
@@ -24,18 +25,21 @@ def loadplayerpos():
         elif fram[row][col].state == 5:
             fram.cursor = fram[row][col]
             fram.previous_state = 1
-
+# ------------------------------------------------------------------------------
 def Move():
-'''Move the player'''
-    fram.cursor.state = fram.previous_state
-    fram.previous_state = fram.pos.state
-    fram.cursor = fram.pos
+    '''Move the player to the new position'''
+
+    fram.cursor.state = fram.previous_state  #------------------------------------------------------------------------------------
+    fram.previous_state = fram.pos.state     #Change the previous cell to the current one and the current cell to the new position
+    fram.cursor = fram.pos                   #------------------------------------------------------------------------------------
 
     if fram.previous_state == 0:
         fram.cursor.state = 4
     else:
         fram.cursor.state = 5
+# ------------------------------------------------------------------------------
 def Push():
+    '''Move the player and push the box if there is no obstacles'''
     obstacles = (2,3,6)
     if fram.pos.state == 2: status = 0
     elif fram.pos.state == 3: status = 1
@@ -49,6 +53,7 @@ def Push():
         fram.pos.state = status
         fram.forward.state = 2
         Move()
+# ------------------------------------------------------------------------------
 def Pull():
     obstacles = (2,3,6)
     if fram.pos.state in obstacles: return
@@ -66,7 +71,7 @@ def Pull():
         fram.backward.state = status
         Move()
         fram[row][col].state = 3
-
+# ------------------------------------------------------------------------------
 def Checkwin():
     rows, cols = fram.size
     for row in range(rows):
@@ -74,7 +79,7 @@ def Checkwin():
             if fram[row][col].state == 2:
                 return False
     return True
-
+# ------------------------------------------------------------------------------
 def on_key(widget, code, mods):
     obstacle = False
     moves = {'Up':(-1,0), 'Down':(1,0), 'Right':(0,1), 'Left':(0,-1)}
@@ -99,7 +104,7 @@ def on_key(widget, code, mods):
         Push()
     if Checkwin():
         start_level()
-
+# ------------------------------------------------------------------------------
 def start_level():
 
 
@@ -150,7 +155,6 @@ def start_level():
     fram = Frame(win, fold=cols, grow = False)
     images = tuple(Image(file= f'{status}.gif') for status in 'ABCDEFG') # store cell images in a tuple
 
-    # ----------------------------------------------------------------------------
 
     blocks = {' ': 0, '.': 1, '$': 2, '*':3, '@': 4, '+': 5, '#': 6}
     for ligne in list[a]: # loop over the board cells
@@ -161,7 +165,7 @@ def start_level():
     loadplayerpos()
     print(fram.size)
     win.loop()
-
+# ------------------------------------------------------------------------------
 def main():
     '''Launch the game'''
     global win
