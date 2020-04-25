@@ -15,7 +15,7 @@ def loadplayerpos():
     rows, cols = fram.size
     row = 0
     col = 0
-    fram.cursor = None
+    fram.cursor = None #Cursor for the player position
 
     for loop in range(rows*cols): # loop over the board cells
         row, col = loop // cols, loop % cols # get cell coords by Euclidian division
@@ -39,59 +39,65 @@ def Move():
         fram.cursor.state = 5
 # ------------------------------------------------------------------------------
 def Push():
-    '''Move the player and push the box if there is no obstacles'''
-    obstacles = (2,3,6)
-    if fram.pos.state == 2: status = 0
-    elif fram.pos.state == 3: status = 1
+    '''Move the player forward and push the box if there is no obstacles'''
+    obstacles = (2,3,6) # Set the obstacles to : Boxes, Goal-Boxes and walls
+    if fram.pos.state == 2: status = 0 # set status to the corresponding cell (here Box gives an empty cell status)
+    elif fram.pos.state == 3: status = 1 # ------------------------------------(here Goal-Box gives a goal cell status)
 
-    if fram.forward.state in obstacles: return
-    if fram.pos.state == status+2 and fram.forward.state == 1:
+    if fram.forward.state in obstacles: return #if the forward cell is an obstacle the box can't be pushed
+    if fram.pos.state == status+2 and fram.forward.state == 1: #if the forward cell is a goal, move the player and move the box and change it to a goal-box
         fram.pos.state = status
         fram.forward.state = 3
         Move()
-    elif fram.pos.state == status+2 and fram.forward.state == 0:
+    elif fram.pos.state == status+2 and fram.forward.state == 0: #if the forward cell is not a goal, move the player and move the box and change it to a normal box
         fram.pos.state = status
         fram.forward.state = 2
         Move()
 # ------------------------------------------------------------------------------
 def Pull():
-    obstacles = (2,3,6)
+    '''Move the player backward and pull the box if there is no obstacles'''
+    obstacles = (2,3,6) # Set the obstacles to : Boxes, Goal-Boxes and walls
     if fram.pos.state in obstacles: return
     row, col = fram.cursor.index
 
-    if fram.backward.state == 2: status = 0
-    elif fram.backward.state == 3: status = 1
+    if fram.backward.state == 2: status = 0 # set status to the corresponding cell (here Box gives an empty cell status)
+    elif fram.backward.state == 3: status = 1# ------------------------------------(here Goal-Box gives a goal cell status)
     else: return
 
-    if fram.backward.state == status+2 and fram.cursor.state == 4:
+    if fram.backward.state == status+2 and fram.cursor.state == 4: #If the player current cell is an empty cell, move the player, pull the box and change it's state to a non-goal box
         fram.backward.state = status
         Move()
         fram[row][col].state = 2
-    elif fram.backward.state == status+2 and fram.cursor.state == 5:
+    elif fram.backward.state == status+2 and fram.cursor.state == 5: #If the player current cell is a goal cell, move the player, pull the box and change it's state to a goal-box
         fram.backward.state = status
         Move()
         fram[row][col].state = 3
 # ------------------------------------------------------------------------------
 def Checkwin():
+    '''Return True if the game is ended and return False if it's not'''
     rows, cols = fram.size
     for row in range(rows):
         for col in range(cols):
-            if fram[row][col].state == 2:
+            if fram[row][col].state == 2: #If it finds a box return False
                 return False
-    return True
+    return True #No box found return True
 # ------------------------------------------------------------------------------
 def on_key(widget, code, mods):
+    '''Commands using keyboards key'''
     obstacle = False
     moves = {'Up':(-1,0), 'Down':(1,0), 'Right':(0,1), 'Left':(0,-1)}
-    if code not in moves: return
+
+    if code not in moves: return #return if key is not the keyboard arrows
+
     rows, cols = fram.size
+
     row, col = fram.cursor.index
     row_move, col_move = moves[code]
     row, col = row + row_move, col + col_move
     fram.pos = fram[row][col]
-    if fram.pos.state == 6: return
-    fram.forward = fram[row+row_move][col+col_move]
-    fram.backward = fram[row-2*row_move][col-2*col_move]
+    if fram.pos.state == 6: return               # return if the cell is a wall
+    fram.forward = fram[row+row_move][col+col_move] #save the forward cell in fram.forward
+    fram.backward = fram[row-2*row_move][col-2*col_move] #save the backward cell in fram.backward
 
     if 'Control' in mods:
         Pull()
@@ -106,43 +112,46 @@ def on_key(widget, code, mods):
         start_level()
 # ------------------------------------------------------------------------------
 def start_level():
-
+    '''Start a new level'''
 
     list, rows, cols = level_list()
-    a = random.randint(1,69)
+    a = random.randint(1,69) #Take a random level
     emptyl= ''
-    for x in range(cols):
+
+    for x in range(cols): # Create an empty line with a maxcols length
         emptyl +=' '
     emptyl += '\n'
+
+
     currows=0
-
-
 
     for loop in range(len(list[a])):
         curcols = 0
-        lenght = len(list[a][loop])
+        lenght = len(list[a][loop]) # lenght of a line
         print(lenght)
 
         if lenght < cols:
-            curcols = cols - lenght
-        while curcols + 1 > 0:
+            curcols = cols - lenght #curcols is the number of column to add
+
+
+        while curcols + 1 > 0:  #add columns at the beginning and the end of the line using pair and even and odds numbers
             print(curcols)
             if curcols%2 == 0:
                 list[a][loop] = list[a][loop][:-1]+' \n'
             else:
                 list[a][loop] = ' '+ list[a][loop]
             curcols -= 1
-    if len(list[a]) < cols:
-        currows = rows-len(list[a])
-    while currows > 0:
+
+    if len(list[a]) < rows:
+        currows = rows-len(list[a]) # currows is the number of lines to add
         if currows%2 == 0:
-            list[a].append(emptyl)
+            list[a].append(emptyl) #add a line after
         else:
-            list[a].insert(0, emptyl)
+            list[a].insert(0, emptyl) #add a line before
         currows -= 1
 
 
-    for i in list[a]:
+    for i in list[a]: #print the level string
         print(i)
 
 
@@ -150,19 +159,20 @@ def start_level():
 
     print(rows)
     print(cols)
-    del win[0]
-    global fram
+    del win[0] # Delete empty frame
+    global fram # Set a new frame
     fram = Frame(win, fold=cols, grow = False)
     images = tuple(Image(file= f'{status}.gif') for status in 'ABCDEFG') # store cell images in a tuple
 
 
-    blocks = {' ': 0, '.': 1, '$': 2, '*':3, '@': 4, '+': 5, '#': 6}
+    blocks = {' ': 0, '.': 1, '$': 2, '*':3, '@': 4, '+': 5, '#': 6} # link each character to his state number
+
     for ligne in list[a]: # loop over the board cells
         for letter in ligne:
             if letter in blocks:
-                Label(fram, image=images, state =blocks[letter], grow=False)
+                Label(fram, image=images, state =blocks[letter], grow=False) # add a new cell depending on the letter
 
-    loadplayerpos()
+    loadplayerpos() #initialize player position
     print(fram.size)
     win.loop()
 # ------------------------------------------------------------------------------
@@ -170,7 +180,7 @@ def main():
     '''Launch the game'''
     global win
     win = Win(title='test', bg='#000', key=on_key, grow = False)
-    Frame(win)
+    Frame(win) #Create empty frame
     start_level()
 
 

@@ -1,5 +1,11 @@
+# ==============================================================================
+__author__  = "MATHIS Titouan, LAFONT Sybille"
+__version__ = "1.0"
+__date__    = "2020-04-24"
+# ==============================================================================
 
 def size_list(list):
+    '''Return the list with it's maximum rows and columns'''
     maxrows = 0
     maxcols = 0
     maxrowslist = ''
