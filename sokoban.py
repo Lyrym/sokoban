@@ -107,9 +107,8 @@ def on_key(widget, code, mods):
         stats[1] = calcul_goal()
         DisplayStats()
         if Checkwin():
-            end_time = time.time()
-            print(round(50000 / (end_time - start_time)))
-            start_level()
+
+            end_level()
 
         return
     if fram.pos.state == 0 or fram.pos.state == 1:
@@ -120,13 +119,13 @@ def on_key(widget, code, mods):
 
 
     if Checkwin():
-        end_time = time.time()
-        print(round(50000 / (end_time - start_time)))
-        start_level()
+
+        end_level()
     stats[1] = calcul_goal()
     DisplayStats()
 # ------------------------------------------------------------------------------
 def calcul_goal() :
+    '''get the number of remaining goal cases'''
     rows, cols = fram.size
     goal = 0
     for i in range (0, rows) :
@@ -143,8 +142,9 @@ def start_level():
     '''Start a new level'''
     global start_time
     start_time = time.time()
+    win.curlvl+=1
     list, rows, cols = level_list()
-    lvlnum = random.randint(1,len(list)) #Take a random level
+    lvlnum = win.curlvl #random.randint(1,len(list)) #Take a random level
     stats[0] = lvlnum
     emptyl= ''
 
@@ -209,15 +209,27 @@ def start_level():
     print(fram.size)
     win.loop()
 # ------------------------------------------------------------------------------
+def end_level():
+    end_time = time.time()
+    score = round(50000 / (end_time - start_time))
+    print(score)
+    del win[1]
+    endscreen=Frame(win)
+    score_txt=Label(endscreen, font='Arial 14', grow= True
+)
+    score_txt['text'] = 'Score: '+ str(score)
+    #start_level()
+# ------------------------------------------------------------------------------
 def main():
     '''Launch the game'''
     global stats
     stats = [0,0,0]
     global win
     win = Win(title='test', key=on_key, grow = False)
-    Label(win, font='Arial 14', height=2, border=2)
+    Label(win, font='Arial 14')
     Frame(win) #Create empty frame
     win.label = win[0]
+    win.curlvl = 0
     start_level()
 
 
