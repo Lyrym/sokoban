@@ -8,6 +8,7 @@ from playsoundfold.playsound import playsound
 from listelvl import *
 import random
 import asyncio
+import time
 # ==============================================================================
 
 def loadplayerpos():
@@ -37,6 +38,7 @@ def Move():
         fram.cursor.state = 4
     else:
         fram.cursor.state = 5
+    stats[2]+=1
 # ------------------------------------------------------------------------------
 def Push():
     '''Move the player forward and push the box if there is no obstacles'''
@@ -84,6 +86,7 @@ def Checkwin():
 # ------------------------------------------------------------------------------
 def on_key(widget, code, mods):
     '''Commands using keyboards key'''
+
     obstacle = False
     moves = {'Up':(-1,0), 'Down':(1,0), 'Right':(0,1), 'Left':(0,-1)}
 
@@ -101,21 +104,30 @@ def on_key(widget, code, mods):
 
     if 'Control' in mods:
         Pull()
+        DisplayStats()
         if Checkwin():
             start_level()
         return
     if fram.pos.state == 0 or fram.pos.state == 1:
         Move()
+
     elif fram.pos.state == 2 or fram.pos.state == 3:
         Push()
+
+
     if Checkwin():
         start_level()
+    DisplayStats()
+# ------------------------------------------------------------------------------
+def DisplayStats():
+    win.label['text'] = f"Level:{stats[0]} Moves:{stats[2]}"
 # ------------------------------------------------------------------------------
 def start_level():
     '''Start a new level'''
 
     list, rows, cols = level_list()
-    a = random.randint(1,69) #Take a random level
+    lvlnum = random.randint(1,len(list)) #Take a random level
+    stats[0] = lvlnum
     emptyl= ''
 
     for x in range(cols): # Create an empty line with a maxcols length
@@ -125,9 +137,9 @@ def start_level():
 
     currows=0
 
-    for loop in range(len(list[a])):
+    for loop in range(len(list[lvlnum])):
         curcols = 0
-        lenght = len(list[a][loop]) # lenght of a line
+        lenght = len(list[lvlnum][loop]) # lenght of a line
         print(lenght)
 
         if lenght < cols:
@@ -137,21 +149,21 @@ def start_level():
         while curcols + 1 > 0:  #add columns at the beginning and the end of the line using pair and even and odds numbers
             print(curcols)
             if curcols%2 == 0:
-                list[a][loop] = list[a][loop][:-1]+' \n'
+                list[lvlnum][loop] = list[lvlnum][loop][:-1]+' \n'
             else:
-                list[a][loop] = ' '+ list[a][loop]
+                list[lvlnum][loop] = ' '+ list[lvlnum][loop]
             curcols -= 1
 
-    if len(list[a]) < rows:
-        currows = rows-len(list[a]) # currows is the number of lines to add
+    if len(list[lvlnum]) < rows:
+        currows = rows-len(list[lvlnum]) # currows is the number of lines to add
         if currows%2 == 0:
-            list[a].append(emptyl) #add a line after
+            list[lvlnum].append(emptyl) #add a line after
         else:
-            list[a].insert(0, emptyl) #add a line before
+            list[lvlnum].insert(0, emptyl) #add a line before
         currows -= 1
 
 
-    for i in list[a]: #print the level string
+    for i in list[lvlnum]: #print the level string
         print(i)
 
 
@@ -159,7 +171,7 @@ def start_level():
 
     print(rows)
     print(cols)
-    del win[0] # Delete empty frame
+    del win[1] # Delete empty frame
     global fram # Set a new frame
     fram = Frame(win, fold=cols, grow = False)
     images = tuple(Image(file= f'{status}.gif') for status in 'ABCDEFG') # store cell images in a tuple
@@ -167,20 +179,26 @@ def start_level():
 
     blocks = {' ': 0, '.': 1, '$': 2, '*':3, '@': 4, '+': 5, '#': 6} # link each character to his state number
 
-    for ligne in list[a]: # loop over the board cells
+    for ligne in list[lvlnum]: # loop over the board cells
         for letter in ligne:
             if letter in blocks:
                 Label(fram, image=images, state =blocks[letter], grow=False) # add a new cell depending on the letter
 
     loadplayerpos() #initialize player position
+    stats[2]= 0
+    DisplayStats()
     print(fram.size)
     win.loop()
 # ------------------------------------------------------------------------------
 def main():
     '''Launch the game'''
+    global stats
+    stats = [0,0,0]
     global win
-    win = Win(title='test', bg='#000', key=on_key, grow = False)
+    win = Win(title='test', key=on_key, grow = False)
+    Label(win, font='Arial 14', height=2, border=2)
     Frame(win) #Create empty frame
+    win.label = win[0]
     start_level()
 
 
