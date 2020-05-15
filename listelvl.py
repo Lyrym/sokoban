@@ -31,7 +31,7 @@ def size_list(list):
         print(i)
 
     print(maxrows,maxcols)
-    return list, maxrows, maxcols
+    return list, maxrows, maxcols+1
 
 
 

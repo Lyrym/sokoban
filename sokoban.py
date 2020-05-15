@@ -104,9 +104,13 @@ def on_key(widget, code, mods):
 
     if 'Control' in mods:
         Pull()
+        stats[1] = calcul_goal()
         DisplayStats()
         if Checkwin():
+            end_time = time.time()
+            print(round(50000 / (end_time - start_time)))
             start_level()
+
         return
     if fram.pos.state == 0 or fram.pos.state == 1:
         Move()
@@ -116,15 +120,29 @@ def on_key(widget, code, mods):
 
 
     if Checkwin():
+        end_time = time.time()
+        print(round(50000 / (end_time - start_time)))
         start_level()
+    stats[1] = calcul_goal()
     DisplayStats()
 # ------------------------------------------------------------------------------
+def calcul_goal() :
+    rows, cols = fram.size
+    goal = 0
+    for i in range (0, rows) :
+        for s in range (0, cols) :
+            if fram[i][s].state == 1 or fram[i][s].state == 5:
+                goal = goal + 1
+    return goal
+# ------------------------------------------------------------------------------
 def DisplayStats():
-    win.label['text'] = f"Level:{stats[0]} Moves:{stats[2]}"
+    '''Display current stats'''
+    win.label['text'] = f"Level:{stats[0]} Goal:{stats[1]} Moves:{stats[2]}"
 # ------------------------------------------------------------------------------
 def start_level():
     '''Start a new level'''
-
+    global start_time
+    start_time = time.time()
     list, rows, cols = level_list()
     lvlnum = random.randint(1,len(list)) #Take a random level
     stats[0] = lvlnum
@@ -185,6 +203,7 @@ def start_level():
                 Label(fram, image=images, state =blocks[letter], grow=False) # add a new cell depending on the letter
 
     loadplayerpos() #initialize player position
+    stats[1] = calcul_goal()
     stats[2]= 0
     DisplayStats()
     print(fram.size)
