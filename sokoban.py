@@ -210,13 +210,13 @@ def start_level():
     win.loop()
 # ------------------------------------------------------------------------------
 def end_level():
+    '''Display an end screen after completing a level'''
     end_time = time.time()
     score = round(50000 / (end_time - start_time))
     print(score)
     del win[1]
     endscreen=Frame(win)
-    score_txt=Label(endscreen, font='Arial 14', grow= True
-)
+    score_txt=Label(endscreen, font='Arial 14', grow= True)
     score_txt['text'] = 'Score: '+ str(score)
     #start_level()
 # ------------------------------------------------------------------------------
